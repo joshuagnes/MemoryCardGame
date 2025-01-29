@@ -1,0 +1,128 @@
+* {
+  padding: 0%;
+  margin: 0%;
+  box-sizing: border-box;
+  font-family: fantasy;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  min-height: 100vh;
+  background: rgb(203, 209, 139);
+}
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  background: rgb(85, 101, 221);
+  padding: 40px 60px;
+}
+
+h2 {
+  font-size: 2em;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+}
+
+.counting {
+  font-size: 1em;
+  color: white;
+  display: flex;
+  width: 70%;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.1rem;
+  transition: 0.25s;
+}
+
+.reset {
+  padding: 5px 20px;
+  color: rgb(144, 203, 110);
+  background: rgb(249, 249, 249);
+  border: none;
+  font-size: 1rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 600;
+  border-radius: 5px;
+}
+
+.reset:hover {
+  color: rgb(249, 249, 249);
+  background-color: rgb(144, 203, 110);
+  transition: 0.25s;
+}
+
+.music{
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background: rgb(144, 203, 110);
+  color: rgb(249, 249, 249);
+  display: flex;
+  justify-self: end;
+  
+}
+
+.music:hover {
+  color: rgb(144, 203, 110);
+  background-color: rgb(249, 249, 249);
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.game {
+  width: 430px;
+  height: 430px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  transform-style: preserve-3d;
+  perspective: 500px;
+}
+
+.item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  font-size: 3em;
+  background: white;
+  transition: 0.25s;
+  transform: rotateY(180deg);
+}
+
+.item.boxOpen {
+  transform: rotateY(0deg);
+}
+
+.item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(144, 203, 110);
+  /* opacity: 0.5; */
+  transition: 0.25s;
+  transform: rotateY(0deg);
+  backface-visibility: hidden;
+}
+
+.boxOpen:after,
+.boxMatch:after {
+  transform: rotateY(180deg);
+}
+

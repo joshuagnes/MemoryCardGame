@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Memory Card</title>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Memory Game</h2>
+    <div class="counting">
+      <div>Move:
+        <span id="moves">00</span>
+      </div>
+      <div>Time:
+        <span id="minutes">00</span>:<span id="seconds">00</span>
+      </div>
+
+    </div>
+    <div class="game"></div>
+
+    <button class="reset" onclick=" window.location.reload();">New Game</button>
+  </div>
+
+  <button class="music" id="music-toggle">Pause Music</button>
+  <audio id="background-music" loop src="/asset/Fluffing-a-Duck(chosic.com).mp3">
+  </audio>
+  </div>
+
+  <audio id="flip-sound" src="asset/flip-sound.mp3">
+  </audio>
+
+  <audio id="victory-sound" src="asset/victory-sound.mp3">
+  </audio>
+
+  <script src="./script.js">
+
+  </script>
+</body>
+
+</html>
