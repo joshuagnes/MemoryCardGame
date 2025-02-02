@@ -25,6 +25,25 @@ var shuffle_emojis = emojis.sort(() => (Math.random() > 0.5 ? 2 : -1));
 let moves = 0;
 const movesDisplay = document.getElementById('moves');
 
+// Timer functionality
+var sec = 0;
+function pad(val) {
+  return val > 9 ? val : '0' + val;
+}
+
+function startTimer() {
+  timerInterval = setInterval(function () {
+    document.getElementById('seconds').innerHTML = pad(++sec % 60);
+    document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
+startTimer();
+
 function flipCard() {
   moves++;
   movesDisplay.textContent = moves;
@@ -76,10 +95,9 @@ for (var i = 0; i < emojis.length; i++) {
               document.querySelectorAll('.boxMatch').length === emojis.length
             ) {
               playVictorySound();
+              stopTimer();
               alert('YOU WIN!!');
-              
             }
-
           } else {
             openCards[0].classList.remove('boxOpen');
             openCards[1].classList.remove('boxOpen');
@@ -91,16 +109,6 @@ for (var i = 0; i < emojis.length; i++) {
 
   document.querySelector('.game').appendChild(box);
 }
-
-// Timer functionality
-var sec = 0;
-function pad(val) {
-  return val > 9 ? val : '0' + val;
-}
-setInterval(function () {
-  document.getElementById('seconds').innerHTML = pad(++sec % 60);
-  document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
-}, 1000);
 
 // Select the audio element and button
 const backgroundMusic = document.getElementById('background-music');
