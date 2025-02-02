@@ -27,6 +27,8 @@ const movesDisplay = document.getElementById('moves');
 
 // Timer functionality
 var sec = 0;
+let firstFlip = true;
+
 function pad(val) {
   return val > 9 ? val : '0' + val;
 }
@@ -41,8 +43,6 @@ function startTimer() {
 function stopTimer() {
   clearInterval(timerInterval);
 }
-
-startTimer();
 
 function flipCard() {
   moves++;
@@ -79,6 +79,12 @@ for (var i = 0; i < emojis.length; i++) {
       this.classList.add('boxOpen');
 
       playFlipSound();
+
+      // Start timer on first flip
+      if (firstFlip) {
+        startTimer();
+        firstFlip = false; // Set flag to false after the first flip
+      }
 
       if (document.querySelectorAll('.boxOpen').length === 2) {
         flipCard();
