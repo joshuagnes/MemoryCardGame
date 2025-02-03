@@ -155,6 +155,20 @@ if (document.querySelectorAll('.boxMatch, .boxOpen').length > 0) {
   firstFlip = false;
 }
 
+// Background music controls
+backgroundMusic.volume = 0.3;
+backgroundMusic.play();
+
+musicToggle.onclick = function () {
+  if (backgroundMusic.paused) {
+    backgroundMusic.play();
+    musicToggle.textContent = 'Pause Music';
+  } else {
+    backgroundMusic.pause();
+    musicToggle.textContent = 'Play Music';
+  }
+};
+
 function startNewGame() {
   // Clear the saved game state
   localStorage.removeItem('memoryGameState');
@@ -183,16 +197,4 @@ function startNewGame() {
   });
 }
 
-// Background music controls
-backgroundMusic.volume = 0.3;
-backgroundMusic.play();
 
-musicToggle.onclick = function () {
-  if (backgroundMusic.paused) {
-    backgroundMusic.play();
-    musicToggle.textContent = 'Pause Music';
-  } else {
-    backgroundMusic.pause();
-    musicToggle.textContent = 'Play Music';
-  }
-};
