@@ -1,64 +1,33 @@
-//Generate the data
+// Generate the data
 const emojis = [
-  '🐶',
-  '🐶',
-  '🐱',
-  '🐱',
-  '🐭',
-  '🐭',
-  '🐹',
-  '🐹',
-  '🐰',
-  '🐰',
-  '🦊',
-  '🦊',
-  '🐻',
-  '🐻',
-  '🐷',
-  '🐷',
+  '🐶', '🐶', '🐱', '🐱', '🐭', '🐭', '🐹', '🐹',
+  '🐰', '🐰', '🦊', '🦊', '🐻', '🐻', '🐷', '🐷'
 ];
 
-// Randomize the emojis
-var shuffle_emojis = emojis.sort(() => (Math.random() > 0.5 ? 2 : -1));
-
-// Add moves counter
+// Game state variables
 let moves = 0;
-const movesDisplay = document.getElementById('moves');
-
-// Timer functionality
-var sec = 0;
+let sec = 0;
 let firstFlip = true;
+let isProcessing = false;
+let timerInterval;
 
+// DOM elements
+const movesDisplay = document.getElementById('moves');
+const flipSound = document.getElementById('flip-sound');
+const victorySound = document.getElementById('victory-sound');
+const backgroundMusic = document.getElementById('background-music');
+const musicToggle = document.getElementById('music-toggle');
+
+// Helper functions
 function pad(val) {
   return val > 9 ? val : '0' + val;
 }
 
-function startTimer() {
-  timerInterval = setInterval(function () {
-    document.getElementById('seconds').innerHTML = pad(++sec % 60);
-    document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
-  }, 1000);
-}
-
-function stopTimer() {
-  clearInterval(timerInterval);
-}
-
-function flipCard() {
-  moves++;
-  movesDisplay.textContent = moves;
-}
-
-// Get the flip sound element
-const flipSound = document.getElementById('flip-sound');
-
 function playFlipSound() {
-  flipSound.currentTime = 0; // Reset the sound to the start
+  flipSound.currentTime = 0;
   flipSound.play();
   flipSound.volume = 0.3;
 }
-
-const victorySound = document.getElementById('victory-sound');
 
 function playVictorySound() {
   victorySound.currentTime = 0;
@@ -66,27 +35,90 @@ function playVictorySound() {
   victorySound.volume = 0.5;
 }
 
-for (var i = 0; i < emojis.length; i++) {
+function saveGameState() {
+  const gameState = {
+    cards: Array.from(document.querySelectorAll('.item')).map(card => ({
+      emoji: card.innerHTML,
+      isOpen: card.classList.contains('boxOpen'),
+      isMatched: card.classList.contains('boxMatch')
+    })),
+    moves: moves,
+    time: sec
+  };
+  localStorage.setItem('memoryGameState', JSON.stringify(gameState));
+}
+
+function loadGameState() {
+  const savedState = localStorage.getItem('memoryGameState');
+  if (savedState) {
+    const gameState = JSON.parse(savedState);
+    moves = gameState.moves;
+    sec = gameState.time;
+    movesDisplay.textContent = moves;
+    document.getElementById('seconds').innerHTML = pad(sec % 60);
+    document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
+    return gameState.cards;
+  }
+  return null;
+}
+
+function startTimer() {
+  if (!timerInterval) {
+    timerInterval = setInterval(function () {
+      document.getElementById('seconds').innerHTML = pad(++sec % 60);
+      document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
+      saveGameState();
+    }, 1000);
+  }
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function flipCard() {
+  moves++;
+  movesDisplay.textContent = moves;
+  saveGameState();
+}
+
+// Initialize game
+const savedCards = loadGameState();
+let shuffle_emojis;
+
+if (savedCards) {
+  shuffle_emojis = savedCards.map(card => card.emoji);
+} else {
+  shuffle_emojis = emojis.sort(() => (Math.random() > 0.5 ? 2 : -1));
+}
+
+for (let i = 0; i < emojis.length; i++) {
   let box = document.createElement('div');
   box.className = 'item';
   box.innerHTML = shuffle_emojis[i];
 
+  if (savedCards) {
+    if (savedCards[i].isOpen) box.classList.add('boxOpen');
+    if (savedCards[i].isMatched) box.classList.add('boxMatch');
+  }
+
   box.onclick = function () {
     if (
+      !isProcessing &&
       !this.classList.contains('boxOpen') &&
       !this.classList.contains('boxMatch')
     ) {
       this.classList.add('boxOpen');
-
       playFlipSound();
 
-      // Start timer on first flip
       if (firstFlip) {
         startTimer();
-        firstFlip = false; // Set flag to false after the first flip
+        firstFlip = false;
       }
 
       if (document.querySelectorAll('.boxOpen').length === 2) {
+        isProcessing = true;
         flipCard();
 
         setTimeout(function () {
@@ -97,17 +129,18 @@ for (var i = 0; i < emojis.length; i++) {
             openCards[0].classList.remove('boxOpen');
             openCards[1].classList.remove('boxOpen');
 
-            if (
-              document.querySelectorAll('.boxMatch').length === emojis.length
-            ) {
+            if (document.querySelectorAll('.boxMatch').length === emojis.length) {
               playVictorySound();
               stopTimer();
+              localStorage.removeItem('memoryGameState');
               alert('YOU WIN!!');
             }
           } else {
             openCards[0].classList.remove('boxOpen');
             openCards[1].classList.remove('boxOpen');
           }
+          isProcessing = false;
+          saveGameState();
         }, 500);
       }
     }
@@ -116,16 +149,44 @@ for (var i = 0; i < emojis.length; i++) {
   document.querySelector('.game').appendChild(box);
 }
 
-// Select the audio element and button
-const backgroundMusic = document.getElementById('background-music');
-const musicToggle = document.getElementById('music-toggle');
+// Start timer if there are already matched or open cards
+if (document.querySelectorAll('.boxMatch, .boxOpen').length > 0) {
+  startTimer();
+  firstFlip = false;
+}
 
-// Start music automatically and set volume
-backgroundMusic.volume = 0.3; // Adjust volume
+function startNewGame() {
+  // Clear the saved game state
+  localStorage.removeItem('memoryGameState');
+  
+  // Reset game variables
+  moves = 0;
+  sec = 0;
+  firstFlip = true;
+  
+  // Stop the timer
+  stopTimer();
+  
+  // Reset the timer display
+  document.getElementById('seconds').innerHTML = '00';
+  document.getElementById('minutes').innerHTML = '00';
+  
+  // Reset moves display
+  movesDisplay.textContent = '0';
+  
+  // Reshuffle and reset cards
+  shuffle_emojis = emojis.sort(() => (Math.random() > 0.5 ? 2 : -1));
+  const cards = document.querySelectorAll('.item');
+  cards.forEach((card, index) => {
+      card.innerHTML = shuffle_emojis[index];
+      card.classList.remove('boxOpen', 'boxMatch');
+  });
+}
 
-backgroundMusic.play(); // Autoplay music when the game starts
+// Background music controls
+backgroundMusic.volume = 0.3;
+backgroundMusic.play();
 
-// Handle toggle button click
 musicToggle.onclick = function () {
   if (backgroundMusic.paused) {
     backgroundMusic.play();
