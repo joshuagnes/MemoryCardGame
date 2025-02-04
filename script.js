@@ -11,6 +11,7 @@ let firstFlip = true;
 let isProcessing = false;
 let timerInterval;
 let gameCompleted = false;
+let totalMoves = parseInt(localStorage.getItem('totalMoves')) || 0;
 
 // DOM elements
 const movesDisplay = document.getElementById('moves');
@@ -36,6 +37,25 @@ function playVictorySound() {
   victorySound.volume = 0.5;
 }
 
+function updateTotalMoves() {
+  totalMoves++;
+  localStorage.setItem('totalMoves', totalMoves);
+  document.getElementById('total-moves').textContent = totalMoves;
+}
+
+// function saveGameState() {
+//   const gameState = {
+//     cards: Array.from(document.querySelectorAll('.item')).map(card => ({
+//       emoji: card.innerHTML,
+//       isOpen: card.classList.contains('boxOpen'),
+//       isMatched: card.classList.contains('boxMatch')
+//     })),
+//     moves: moves,
+//     time: sec,
+//     completed: gameCompleted
+//   };
+//   localStorage.setItem('memoryGameState', JSON.stringify(gameState));
+// }
 function saveGameState() {
   const gameState = {
     cards: Array.from(document.querySelectorAll('.item')).map(card => ({
@@ -47,11 +67,26 @@ function saveGameState() {
     time: sec,
     completed: gameCompleted
   };
-  localStorage.setItem('memoryGameState', JSON.stringify(gameState));
+  sessionStorage.setItem('memoryGameState', JSON.stringify(gameState));
 }
 
+// function loadGameState() {
+//   const savedState = localStorage.getItem('memoryGameState');
+//   if (savedState) {
+//     const gameState = JSON.parse(savedState);
+//     moves = gameState.moves;
+//     sec = gameState.time;
+//     gameCompleted = gameState.completed;
+//     movesDisplay.textContent = moves;
+//     document.getElementById('seconds').innerHTML = pad(sec % 60);
+//     document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
+//     return gameState.cards;
+//   }
+//   return null;
+// }
+
 function loadGameState() {
-  const savedState = localStorage.getItem('memoryGameState');
+  const savedState = sessionStorage.getItem('memoryGameState');
   if (savedState) {
     const gameState = JSON.parse(savedState);
     moves = gameState.moves;
@@ -83,6 +118,7 @@ function stopTimer() {
 function flipCard() {
   moves++;
   movesDisplay.textContent = moves;
+  updateTotalMoves();
   saveGameState();
 }
 
@@ -202,3 +238,5 @@ function startNewGame() {
       card.classList.remove('boxOpen', 'boxMatch');
   });
 }
+
+document.getElementById('total-moves').textContent = totalMoves;
