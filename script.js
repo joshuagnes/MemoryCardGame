@@ -10,6 +10,7 @@ let sec = 0;
 let firstFlip = true;
 let isProcessing = false;
 let timerInterval;
+let gameCompleted = false;
 
 // DOM elements
 const movesDisplay = document.getElementById('moves');
@@ -43,7 +44,8 @@ function saveGameState() {
       isMatched: card.classList.contains('boxMatch')
     })),
     moves: moves,
-    time: sec
+    time: sec,
+    completed: gameCompleted
   };
   localStorage.setItem('memoryGameState', JSON.stringify(gameState));
 }
@@ -54,6 +56,7 @@ function loadGameState() {
     const gameState = JSON.parse(savedState);
     moves = gameState.moves;
     sec = gameState.time;
+    gameCompleted = gameState.completed;
     movesDisplay.textContent = moves;
     document.getElementById('seconds').innerHTML = pad(sec % 60);
     document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
@@ -63,7 +66,7 @@ function loadGameState() {
 }
 
 function startTimer() {
-  if (!timerInterval) {
+  if (!timerInterval && !gameCompleted) {
     timerInterval = setInterval(function () {
       document.getElementById('seconds').innerHTML = pad(++sec % 60);
       document.getElementById('minutes').innerHTML = pad(parseInt(sec / 60, 10));
@@ -107,7 +110,8 @@ for (let i = 0; i < emojis.length; i++) {
     if (
       !isProcessing &&
       !this.classList.contains('boxOpen') &&
-      !this.classList.contains('boxMatch')
+      !this.classList.contains('boxMatch') &&
+      !gameCompleted
     ) {
       this.classList.add('boxOpen');
       playFlipSound();
@@ -132,7 +136,8 @@ for (let i = 0; i < emojis.length; i++) {
             if (document.querySelectorAll('.boxMatch').length === emojis.length) {
               playVictorySound();
               stopTimer();
-              localStorage.removeItem('memoryGameState');
+              gameCompleted = true;
+              saveGameState();
               alert('YOU WIN!!');
             }
           } else {
@@ -149,8 +154,8 @@ for (let i = 0; i < emojis.length; i++) {
   document.querySelector('.game').appendChild(box);
 }
 
-// Start timer if there are already matched or open cards
-if (document.querySelectorAll('.boxMatch, .boxOpen').length > 0) {
+// Start timer if there are already matched or open cards and game is not completed
+if (document.querySelectorAll('.boxMatch, .boxOpen').length > 0 && !gameCompleted) {
   startTimer();
   firstFlip = false;
 }
@@ -177,6 +182,7 @@ function startNewGame() {
   moves = 0;
   sec = 0;
   firstFlip = true;
+  gameCompleted = false;
   
   // Stop the timer
   stopTimer();
@@ -196,5 +202,3 @@ function startNewGame() {
       card.classList.remove('boxOpen', 'boxMatch');
   });
 }
-
-
