@@ -47,11 +47,11 @@ function saveGameState() {
     time: sec,
     completed: gameCompleted
   };
-  sessionStorage.setItem('memoryGameState', JSON.stringify(gameState));
+  localStorage.setItem('memoryGameState', JSON.stringify(gameState));
 }
 
 function loadGameState() {
-  const savedState = sessionStorage.getItem('memoryGameState');
+  const savedState = localStorage.getItem('memoryGameState');
   if (savedState) {
     const gameState = JSON.parse(savedState);
     moves = gameState.moves;
@@ -176,7 +176,7 @@ musicToggle.onclick = function () {
 
 function startNewGame() {
   // Clear the saved game state
-  sessionStorage.removeItem('memoryGameState');
+  localStorage.removeItem('memoryGameState');
   
   // Reset game variables
   moves = 0;
